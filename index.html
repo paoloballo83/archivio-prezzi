@@ -106,8 +106,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
 <div class="apiscreen" id="apiScreen">
   <div class="apibox">
     <h2>Archivio Prezzi Cantiere</h2>
-    <p>Usa Gemini di Google — completamente <strong style="color:var(--gr)">GRATIS!</strong><br>
-    La chiave viene salvata solo nel tuo browser.</p>
+    <p>Usa Gemini di Google — completamente <strong style="color:var(--gr)">GRATIS!</strong><br>La chiave viene salvata solo nel tuo browser.</p>
     <div class="steps">
       <strong>Come ottenere la chiave gratuita:</strong><br>
       1. Vai su aistudio.google.com<br>
@@ -132,14 +131,12 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
     <button class="btn-sm" onclick="cambiaApiKey()">Cambia chiave</button>
   </div>
 </div>
-
 <div class="stats-bar">
   <div class="stat"><div class="stat-val" id="stDoc">0</div><div class="stat-lbl">Documenti</div></div>
   <div class="stat"><div class="stat-val" id="stVoci">0</div><div class="stat-lbl">Voci Prezzi</div></div>
   <div class="stat"><div class="stat-val" id="stForn">0</div><div class="stat-lbl">Fornitori</div></div>
   <div class="stat"><div class="stat-val" id="stTot">0</div><div class="stat-lbl">Totale EUR</div></div>
 </div>
-
 <div class="layout">
   <div class="left-panel">
     <div class="panel-title">Documenti Caricati</div>
@@ -153,7 +150,6 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
     <div class="proc-bar" id="procBar"><div class="spin"></div><span id="procTxt">Analisi...</span></div>
     <div class="doc-list" id="docList"><div class="no-docs">Nessun documento.<br>Clicca sopra per caricare!</div></div>
   </div>
-
   <div class="right-panel">
     <div class="search-area">
       <div class="search-row">
@@ -183,7 +179,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
 
 <script>
 var DOCS=[], CH=[], API_KEY='';
-var GURL='https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+var GURL='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 function init(){
   API_KEY=localStorage.getItem('archivio_gemini_key')||'';
