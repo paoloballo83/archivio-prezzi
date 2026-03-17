@@ -174,12 +174,11 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
   </div>
 </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
 var DOCS=[], CH=[], API_KEY='';
-var GURL='https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+var GURL='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-001:generateContent';
 
 function init(){
   API_KEY=localStorage.getItem('archivio_gemini_key')||'';
@@ -229,16 +228,12 @@ function renderDocs(){
   var html='';
   for(var i=0;i<DOCS.length;i++){
     var d=DOCS[i];
-    html+='<div class="doc-card" onclick="selDoc('+i+')">'+
-      '<div class="doc-card-top">'+
+    html+='<div class="doc-card" onclick="selDoc('+i+')"><div class="doc-card-top">'+
       '<span class="doc-ico">'+(d.tipo==='pdf'?'📄':'🖼')+'</span>'+
-      '<div class="doc-info">'+
-      '<div class="doc-name">'+esc(d.nome)+'</div>'+
+      '<div class="doc-info"><div class="doc-name">'+esc(d.nome)+'</div>'+
       '<div class="doc-meta">'+(d.fornitore?'🏢 '+esc(d.fornitore):'')+
-      (d.data?' · '+d.data:'')+
-      (d.totale>0?' · <strong style="color:var(--ac2)">EUR '+Number(d.totale).toLocaleString('it-IT',{minimumFractionDigits:2})+'</strong>':'')+'</div>'+
-      '<span class="doc-vc">'+(d.voci||[]).length+' voci</span>'+
-      '</div>'+
+      (d.data?' · '+d.data:'')+(d.totale>0?' · <strong style="color:var(--ac2)">EUR '+Number(d.totale).toLocaleString('it-IT',{minimumFractionDigits:2})+'</strong>':'')+'</div>'+
+      '<span class="doc-vc">'+(d.voci||[]).length+' voci</span></div>'+
       '<button class="doc-del" onclick="event.stopPropagation();elimina('+i+')">🗑</button>'+
       '</div></div>';
   }
@@ -252,12 +247,10 @@ function selDoc(i){
     var v=d.voci[j];
     html+='<div class="res-card"><div class="res-top"><span class="res-desc">'+esc(v.d)+'</span>'+
       (v.p>0?'<span class="res-price">EUR '+Number(v.p).toFixed(2)+'</span>':'')+'</div>'+
-      '<div class="res-meta">'+
-      (v.q?'<span class="chip">Qt. '+v.q+' '+v.u+'</span>':'')+
+      '<div class="res-meta">'+(v.q?'<span class="chip">Qt. '+v.q+' '+v.u+'</span>':'')+
       (v.i>0?'<span class="chip gr">Tot. EUR '+Number(v.i).toFixed(2)+'</span>':'')+
       '<span class="chip bl">🏢 '+esc(d.fornitore||'ND')+'</span>'+
-      (d.data?'<span class="chip">'+d.data+'</span>':'')+
-      '</div></div>';
+      (d.data?'<span class="chip">'+d.data+'</span>':'')+'</div></div>';
   }
   document.getElementById('resultsArea').innerHTML=html;
 }
@@ -277,7 +270,7 @@ async function geminiCall(prompt,fileData,mimeType){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({contents:[{parts:parts}],generationConfig:{temperature:0.1,maxOutputTokens:4000}})
   });
-  if(!resp.ok){var e=await resp.json();throw new Error('Errore Gemini '+resp.status+': '+(e.error&&e.error.message?e.error.message:JSON.stringify(e)));}
+  if(!resp.ok){var e=await resp.json();throw new Error('Errore '+resp.status+': '+(e.error&&e.error.message?e.error.message:JSON.stringify(e)));}
   var data=await resp.json();
   return data.candidates[0].content.parts[0].text;
 }
@@ -319,9 +312,7 @@ function cerca(){
   for(var i=0;i<DOCS.length;i++){
     var d=DOCS[i];
     for(var j=0;j<(d.voci||[]).length;j++){
-      var v=d.voci[j];
-      var testo=v.d.toLowerCase();
-      var ok=true;
+      var v=d.voci[j];var testo=v.d.toLowerCase();var ok=true;
       for(var p=0;p<parole.length;p++){if(testo.indexOf(parole[p])<0){ok=false;break;}}
       if(ok)res.push({desc:v.d,um:v.u,q:v.q,p:v.p,i:v.i,fornitore:d.fornitore,data:d.data,tipo_doc:d.tipo_doc});
     }
@@ -333,24 +324,20 @@ function cerca(){
     var v=res[i];
     html+='<div class="res-card"><div class="res-top"><span class="res-desc">'+esc(v.desc)+'</span>'+
       (v.p>0?'<span class="res-price">EUR '+Number(v.p).toFixed(2)+' / '+v.um+'</span>':'')+'</div>'+
-      '<div class="res-meta">'+
-      (v.q?'<span class="chip">Qt. '+v.q+' '+v.um+'</span>':'')+
+      '<div class="res-meta">'+(v.q?'<span class="chip">Qt. '+v.q+' '+v.um+'</span>':'')+
       (v.i>0?'<span class="chip gr">Tot. EUR '+Number(v.i).toFixed(2)+'</span>':'')+
       '<span class="chip bl">🏢 '+esc(v.fornitore)+'</span>'+
-      (v.data?'<span class="chip">'+v.data+'</span>':'')+
-      '</div></div>';
+      (v.data?'<span class="chip">'+v.data+'</span>':'')+'</div></div>';
   }
   area.innerHTML=html;
 }
 
 async function invia(){
-  var inp=document.getElementById('chatIn');
-  var txt=inp.value.trim();if(!txt)return;
+  var inp=document.getElementById('chatIn');var txt=inp.value.trim();if(!txt)return;
   inp.value='';
   var msgs=document.getElementById('chatMsgs');
   msgs.innerHTML+='<div class="cmsg u">'+esc(txt)+'</div>';
-  var typ=document.createElement('div');
-  typ.className='typing-ind';
+  var typ=document.createElement('div');typ.className='typing-ind';
   typ.innerHTML='<span>Gemini sta scrivendo</span><div class="dots"><span></span><span></span><span></span></div>';
   msgs.appendChild(typ);msgs.scrollTop=msgs.scrollHeight;
   var ctx='DOCUMENTI:\n';
