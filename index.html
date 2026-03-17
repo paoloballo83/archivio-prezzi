@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archivio Prezzi Cantiere</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0e;--s1:#1a1917;--s2:#242320;--bd:#2e2c28;--ac:#e8a020;--ac2:#f5c842;--tx:#f0ede8;--tm:#7a7670;--ts:#b0aba3;--gr:#27ae60;--rd:#c0392b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+.header{background:var(--s1);border-bottom:1px solid var(--bd);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.header h1{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:24px;color:var(--ac)}
+.header-sub{font-size:12px;color:var(--tm);margin-top:2px}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px 24px;background:var(--s1);border-bottom:1px solid var(--bd)}
+.stat{text-align:center}
+.stat-val{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:26px;color:var(--ac2)}
+.stat-lbl{font-size:11px;color:var(--tm);margin-top:2px;text-transform:uppercase;letter-spacing:.8px}
+.layout{display:flex;height:calc(100vh - 140px)}
+.left-panel{width:340px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden}
+.panel-title{padding:16px;border-bottom:1px solid var(--bd);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:16px;color:var(--ac);text-transform:uppercase}
+.upload-area{margin:16px;border:2px dashed var(--ac);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-area:hover{background:var(--s2)}
+.upload-icon{font-size:40px;margin-bottom:8px}
+.upload-area p{font-size:14px;color:var(--tx);margin-bottom:4px}
+.upload-area strong{color:var(--ac);font-size:15px}
+.upload-area small{font-size:12px;color:var(--tm)}
+.proc-bar{display:none;margin:0 16px 12px;padding:12px 14px;background:var(--s2);border:1px solid var(--ac);border-radius:8px;font-size:13px;color:var(--ac2);align-items:center;gap:10px}
+.proc-bar.show{display:flex}
+.spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(232,160,32,.3);border-top-color:var(--ac);border-radius:50%;animation:sp .8s linear infinite;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
+.doc-list{flex:1;overflow-y:auto;padding:0 16px 16px}
+.doc-list::-webkit-scrollbar{width:4px}
+.doc-list::-webkit-scrollbar-thumb{background:var(--bd)}
+.doc-card{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.doc-card:hover{border-color:var(--ac)}
+.doc-card.sel{border-color:var(--ac);background:rgba(232,160,32,.05)}
+.doc-card-top{display:flex;align-items:flex-start;gap:8px}
+.doc-ico{font-size:22px;flex-shrink:0}
+.doc-info{flex:1;min-width:0}
+.doc-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-meta{font-size:11px;color:var(--tm);margin-top:3px;line-height:1.5}
+.doc-del{background:none;border:none;color:var(--tm);cursor:pointer;font-size:16px;padding:2px;flex-shrink:0}
+.doc-del:hover{color:var(--rd)}
+.doc-voci-count{display:inline-block;background:var(--ac);color:#000;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:11px;padding:1px 8px;border-radius:10px;margin-top:6px}
+.right-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.search-area{padding:16px 20px;border-bottom:1px solid var(--bd);background:var(--s1)}
+.search-row{display:flex;gap:8px}
+.search-row input{flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-family:Barlow,sans-serif;font-size:15px;padding:11px 14px;outline:none}
+.search-row input:focus{border-color:var(--ac)}
+.search-row button{background:var(--ac);border:none;border-radius:8px;color:#000;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:16px;padding:11px 24px;cursor:pointer}
+.search-hint{font-size:12px;color:var(--tm);margin-top:8px}
+.results-area{flex:1;overflow-y:auto;padding:16px 20px}
+.results-area::-webkit-scrollbar{width:4px}
+.results-area::-webkit-scrollbar-thumb{background:var(--bd)}
+.res-count{font-size:13px;color:var(--tm);margin-bottom:12px}
+.res-count strong{color:var(--ac2)}
+.res-card{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:10px;animation:fi .2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.res-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.res-desc{flex:1;font-size:14px;font-weight:600;line-height:1.4}
+.res-price{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:22px;color:var(--ac2);white-space:nowrap}
+.res-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--ts)}
+.chip{background:var(--bg);border-radius:4px;padding:2px 8px}
+.chip.green{background:rgba(39,174,96,.15);color:#27ae60}
+.chip.blue{background:rgba(52,152,219,.15);color:#3498db}
+.empty-state{text-align:center;padding:60px 20px;color:var(--tm)}
+.empty-state .ico{font-size:48px;margin-bottom:12px}
+.empty-state p{font-size:15px;margin-bottom:6px}
+.empty-state small{font-size:13px}
+.chat-panel{height:280px;border-top:1px solid var(--bd);background:var(--s1);display:flex;flex-direction:column;flex-shrink:0}
+.chat-header{padding:10px 20px;border-bottom:1px solid var(--bd);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:15px;color:var(--ac)}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px 20px;display:flex;flex-direction:column;gap:6px}
+.chat-msgs::-webkit-scrollbar{width:4px}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--bd)}
+.cmsg{padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.5;max-width:80%}
+.cmsg.u{background:#2a2318;align-self:flex-end;color:var(--ac2)}
+.cmsg.b{background:#1e1d1b;border:1px solid var(--bd);align-self:flex-start}
+.chat-input-row{padding:10px 20px;display:flex;gap:8px;border-top:1px solid var(--bd)}
+.chat-input-row input{flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-family:Barlow,sans-serif;font-size:14px;padding:9px 12px;outline:none}
+.chat-input-row input:focus{border-color:var(--ac)}
+.chat-input-row button{background:var(--ac);border:none;border-radius:8px;color:#000;font-family:"Barlow Condensed",sans-serif;font-weight:700;padding:9px 18px;cursor:pointer}
+.typing-ind{display:flex;align-items:center;gap:6px;padding:6px 12px;color:var(--tm);font-size:12px;align-self:flex-start}
+.dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ac);animation:bounce 1.2s infinite;margin-right:2px}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gr);color:#fff;font-size:13px;font-weight:600;padding:10px 20px;border-radius:8px;opacity:0;transition:all .3s;pointer-events:none;z-index:100}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.no-docs{text-align:center;padding:30px 16px;color:var(--tm);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Archivio Prezzi Cantiere</h1>
+    <div class="header-sub">Carica fatture e contabilita PDF — cerca qualsiasi prezzo che hai pagato</div>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-val" id="stDoc">0</div><div class="stat-lbl">Documenti</div></div>
+  <div class="stat"><div class="stat-val" id="stVoci">0</div><div class="stat-lbl">Voci Prezzi</div></div>
+  <div class="stat"><div class="stat-val" id="stForn">0</div><div class="stat-lbl">Fornitori</div></div>
+  <div class="stat"><div class="stat-val" id="stTot">0</div><div class="stat-lbl">Totale EUR</div></div>
+</div>
+
+<div class="layout">
+  <div class="left-panel">
+    <div class="panel-title">Documenti Caricati</div>
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-icon">📄</div>
+      <p><strong>Clicca per caricare</strong></p>
+      <p>PDF fattura o contabilita</p>
+      <small>Il bot AI estrae tutti i prezzi automaticamente</small>
+    </div>
+    <input type="file" id="fileInput" accept="application/pdf,image/jpeg,image/png,image/webp" style="display:none" onchange="carica(event)">
+    <div class="proc-bar" id="procBar"><div class="spin"></div><span id="procTxt">Analisi in corso...</span></div>
+    <div class="doc-list" id="docList">
+      <div class="no-docs">Nessun documento caricato.<br>Clicca sopra per iniziare!</div>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="search-area">
+      <div class="search-row">
+        <input type="text" id="searchIn" placeholder="Cerca: calcestruzzo, ferro, intonaco, scavo, massetto..." onkeydown="if(event.key==='Enter')cerca()">
+        <button onclick="cerca()">Cerca</button>
+      </div>
+      <div class="search-hint">Cerca nei tuoi documenti caricati — trova prezzi, fornitori e date</div>
+    </div>
+    <div class="results-area" id="resultsArea">
+      <div class="empty-state">
+        <div class="ico">🔍</div>
+        <p>Carica i tuoi PDF e poi cerca qualsiasi materiale</p>
+        <small>Es: "calcestruzzo" trova tutti i prezzi pagati con fornitore e data</small>
+      </div>
+    </div>
+    <div class="chat-panel">
+      <div class="chat-header">Chiedi al Bot — Es: "Quanto ho pagato il ferro?" o "Fornitore piu economico per cls?"</div>
+      <div class="chat-msgs" id="chatMsgs">
+        <div class="cmsg b">Ciao! Carica le tue fatture PDF e poi chiedimi tutto: prezzi pagati, confronti tra fornitori, andamento prezzi nel tempo.</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatIn" placeholder="Es: Quanto ho pagato il calcestruzzo a febbraio?" onkeydown="if(event.key==='Enter')invia()">
+        <button onclick="invia()">Invia</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var DOCS = [];
+var CH = [];
+try { var s = localStorage.getItem('archivio_docs'); if(s) DOCS = JSON.parse(s); } catch(e) {}
+aggiorna();
+
+function salva() { try { localStorage.setItem('archivio_docs', JSON.stringify(DOCS)); } catch(e) {} }
+
+function aggiorna() {
+  var totVoci = 0, fornitori = {}, totEur = 0;
+  for(var i = 0; i < DOCS.length; i++) {
+    var d = DOCS[i];
+    totVoci += (d.voci || []).length;
+    if(d.fornitore) fornitori[d.fornitore] = 1;
+    totEur += (d.totale || 0);
+  }
+  document.getElementById('stDoc').textContent = DOCS.length;
+  document.getElementById('stVoci').textContent = totVoci;
+  document.getElementById('stForn').textContent = Object.keys(fornitori).length;
+  document.getElementById('stTot').textContent = totEur > 0 ? Math.round(totEur).toLocaleString('it-IT') : '0';
+  renderDocs();
+}
+
+function renderDocs() {
+  var list = document.getElementById('docList');
+  if(!DOCS.length) { list.innerHTML = '<div class="no-docs">Nessun documento.<br>Clicca sopra per caricare!</div>'; return; }
+  var html = '';
+  for(var i = 0; i < DOCS.length; i++) {
+    var d = DOCS[i];
+    html += '<div class="doc-card" onclick="selDoc(' + i + ')">' +
+      '<div class="doc-card-top">' +
+      '<span class="doc-ico">' + (d.tipo === 'pdf' ? '📄' : '🖼') + '</span>' +
+      '<div class="doc-info">' +
+      '<div class="doc-name">' + esc(d.nome) + '</div>' +
+      '<div class="doc-meta">' + (d.fornitore ? '🏢 ' + esc(d.fornitore) : '') + (d.data ? ' · ' + d.data : '') +
+      (d.totale > 0 ? ' · <strong style="color:var(--ac2)">EUR ' + Number(d.totale).toLocaleString('it-IT',{minimumFractionDigits:2}) + '</strong>' : '') + '</div>' +
+      '<span class="doc-voci-count">' + (d.voci || []).length + ' voci</span>' +
+      '</div>' +
+      '<button class="doc-del" onclick="event.stopPropagation();elimina(' + i + ')">🗑</button>' +
+      '</div></div>';
+  }
+  list.innerHTML = html;
+}
+
+function selDoc(i) {
+  var d = DOCS[i];
+  if(!d || !(d.voci || []).length) return;
+  var html = '<div class="res-count">Documento: <strong>' + esc(d.nome) + '</strong> — ' + d.voci.length + ' voci</div>';
+  for(var j = 0; j < d.voci.length; j++) {
+    var v = d.voci[j];
+    html += '<div class="res-card"><div class="res-top"><span class="res-desc">' + esc(v.d) + '</span>' +
+      (v.p > 0 ? '<span class="res-price">EUR ' + Number(v.p).toFixed(2) + '</span>' : '') + '</div>' +
+      '<div class="res-meta">' +
+      (v.q ? '<span class="chip">Qt. ' + v.q + ' ' + v.u + '</span>' : '') +
+      (v.i > 0 ? '<span class="chip green">Tot. EUR ' + Number(v.i).toFixed(2) + '</span>' : '') +
+      '<span class="chip blue">🏢 ' + esc(d.fornitore || 'ND') + '</span>' +
+      (d.data ? '<span class="chip">' + d.data + '</span>' : '') +
+      '</div></div>';
+  }
+  document.getElementById('resultsArea').innerHTML = html;
+}
+
+function elimina(i) {
+  if(!confirm('Eliminare questo documento?')) return;
+  DOCS.splice(i, 1);
+  salva(); aggiorna();
+  document.getElementById('resultsArea').innerHTML = '<div class="empty-state"><div class="ico">🔍</div><p>Cerca un materiale nei tuoi documenti</p></div>';
+  showToast('Documento eliminato');
+}
+
+async function carica(event) {
+  var file = event.target.files[0];
+  if(!file) return;
+  event.target.value = '';
+  var isPDF = file.type === 'application/pdf';
+  var isImg = file.type.startsWith('image/');
+  if(!isPDF && !isImg) { showToast('Solo PDF o immagini!'); return; }
+  var proc = document.getElementById('procBar');
+  proc.classList.add('show');
+  document.getElementById('procTxt').textContent = 'Lettura documento...';
+  try {
+    var b64 = await new Promise(function(res, rej) {
+      var r = new FileReader();
+      r.onload = function(e) { res(e.target.result); };
+      r.onerror = function() { rej(new Error('Errore lettura')); };
+      r.readAsDataURL(file);
+    });
+    var b64d = b64.split(',')[1];
+    if(!b64d) throw new Error('File vuoto');
+    document.getElementById('procTxt').textContent = 'AI sta analizzando...';
+    var prompt = 'Analizza questo documento edile italiano. Estrai tutte le voci con prezzi. Rispondi SOLO con JSON valido:\n{"fornitore":"nome","data":"data","numero":"num","totale":0,"tipo_doc":"fattura","voci":[{"d":"descrizione","u":"um","q":0,"p":0,"i":0}],"note":""}';
+    var cb = isPDF ?
+      {type:'document',source:{type:'base64',media_type:'application/pdf',data:b64d}} :
+      {type:'image',source:{type:'base64',media_type:file.type,data:b64d}};
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,messages:[{role:'user',content:[cb,{type:'text',text:prompt}]}]})
+    });
+    if(!resp.ok) throw new Error('Errore API ' + resp.status);
+    var data = await resp.json();
+    if(!data.content || !data.content[0]) throw new Error('Risposta vuota');
+    var raw = data.content[0].text.trim().replace(/```json|```/g,'').trim();
+    var ex = JSON.parse(raw);
+    var doc = {id:Date.now(),nome:file.name,tipo:isPDF?'pdf':'img',fornitore:ex.fornitore||'ND',data:ex.data||'',numero:ex.numero||'',totale:ex.totale||0,tipo_doc:ex.tipo_doc||'documento',voci:ex.voci||[],note:ex.note||''};
+    DOCS.push(doc);
+    salva(); aggiorna();
+    showToast('Analizzato — ' + doc.voci.length + ' voci estratte!');
+  } catch(err) {
+    console.error(err);
+    showToast('Errore: ' + err.message);
+  }
+  proc.classList.remove('show');
+}
+
+function cerca() {
+  var q = document.getElementById('searchIn').value.trim().toLowerCase();
+  if(q.length < 2) { showToast('Almeno 2 caratteri'); return; }
+  if(!DOCS.length) { showToast('Carica prima i documenti PDF!'); return; }
+  var parole = q.split(' ').filter(function(p){ return p.length > 0; });
+  var res = [];
+  for(var i = 0; i < DOCS.length; i++) {
+    var d = DOCS[i];
+    for(var j = 0; j < (d.voci||[]).length; j++) {
+      var v = d.voci[j];
+      var testo = v.d.toLowerCase();
+      var trovato = true;
+      for(var p = 0; p < parole.length; p++) {
+        if(testo.indexOf(parole[p]) < 0) { trovato = false; break; }
+      }
+      if(trovato) res.push({desc:v.d,um:v.u,q:v.q,p:v.p,i:v.i,fornitore:d.fornitore,data:d.data,doc:d.nome,tipo_doc:d.tipo_doc});
+    }
+  }
+  var area = document.getElementById('resultsArea');
+  if(!res.length) {
+    area.innerHTML = '<div class="empty-state"><div class="ico">❌</div><p>Nessun risultato per <strong>' + esc(q) + '</strong></p><small>Prova con termini diversi o carica piu documenti</small></div>';
+    return;
+  }
+  var html = '<div class="res-count">Trovati <strong>' + res.length + '</strong> risultati per "' + esc(q) + '"</div>';
+  for(var i = 0; i < res.length; i++) {
+    var v = res[i];
+    html += '<div class="res-card"><div class="res-top"><span class="res-desc">' + esc(v.desc) + '</span>' +
+      (v.p > 0 ? '<span class="res-price">EUR ' + Number(v.p).toFixed(2) + ' / ' + v.um + '</span>' : '') + '</div>' +
+      '<div class="res-meta">' +
+      (v.q ? '<span class="chip">Qt. ' + v.q + ' ' + v.u + '</span>' : '') +
+      (v.i > 0 ? '<span class="chip green">Tot. EUR ' + Number(v.i).toFixed(2) + '</span>' : '') +
+      '<span class="chip blue">🏢 ' + esc(v.fornitore) + '</span>' +
+      (v.data ? '<span class="chip">' + v.data + '</span>' : '') +
+      '<span class="chip">' + esc(v.tipo_doc) + '</span>' +
+      '</div></div>';
+  }
+  area.innerHTML = html;
+}
+
+async function invia() {
+  var inp = document.getElementById('chatIn');
+  var txt = inp.value.trim();
+  if(!txt) return;
+  inp.value = '';
+  var msgs = document.getElementById('chatMsgs');
+  msgs.innerHTML += '<div class="cmsg u">' + esc(txt) + '</div>';
+  var typ = document.createElement('div');
+  typ.className = 'typing-ind';
+  typ.innerHTML = '<span>Bot sta scrivendo</span><div class="dots"><span></span><span></span><span></span></div>';
+  msgs.appendChild(typ);
+  msgs.scrollTop = msgs.scrollHeight;
+  CH.push({role:'user',content:txt});
+  var ctx = '';
+  for(var i = 0; i < DOCS.length; i++) {
+    var d = DOCS[i];
+    ctx += 'Documento: ' + d.nome + ' | Fornitore: ' + d.fornitore + ' | Data: ' + d.data + ' | Totale: EUR ' + d.totale + '\n';
+    for(var j = 0; j < (d.voci||[]).length; j++) {
+      var v = d.voci[j];
+      ctx += ' - ' + v.d + ': ' + v.q + ' ' + v.u + ' x EUR ' + v.p + ' = EUR ' + v.i + '\n';
+    }
+    ctx += '---\n';
+  }
+  var sysMsg = 'Sei un assistente per la contabilita di cantiere edile. Analizza i documenti e rispondi sui prezzi pagati. Cita sempre fornitore e data.\n\nDOCUMENTI:\n' + ctx;
+  try {
+    var r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sysMsg,messages:CH.map(function(m){return{role:m.role,content:m.content};})})
+    });
+    var data = await r.json();
+    var ans = data.content[0].text;
+    CH.push({role:'assistant',content:ans});
+    typ.outerHTML = '<div class="cmsg b">' + ans.replace(/\n/g,'<br>') + '</div>';
+  } catch(e) {
+    typ.outerHTML = '<div class="cmsg b">Errore di connessione. Riprova!</div>';
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showToast(m) { var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on');},2500); }
+</script>
+</body>
+</html>
