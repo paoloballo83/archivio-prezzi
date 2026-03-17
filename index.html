@@ -10,14 +10,15 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
 .apiscreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
-.apibox{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:40px;max-width:480px;width:100%;text-align:center}
+.apibox{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:40px;max-width:500px;width:100%;text-align:center}
 .apibox h2{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:26px;color:var(--ac);margin-bottom:8px}
-.apibox p{font-size:14px;color:var(--tm);margin-bottom:24px;line-height:1.6}
-.apibox input{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-family:Barlow,sans-serif;font-size:14px;padding:12px 14px;outline:none;margin-bottom:12px}
+.apibox p{font-size:14px;color:var(--tm);margin-bottom:20px;line-height:1.6}
+.steps{text-align:left;background:var(--s2);border-radius:8px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--ts);line-height:2}
+.steps strong{color:var(--ac2)}
+.apibox input{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-family:Barlow,sans-serif;font-size:14px;padding:12px 14px;outline:none;margin-bottom:10px}
 .apibox input:focus{border-color:var(--ac)}
 .apibox button{width:100%;background:var(--ac);border:none;border-radius:8px;color:#000;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:17px;padding:13px;cursor:pointer}
-.apibox .note{font-size:12px;color:var(--tm);margin-top:12px}
-.apibox .note a{color:var(--ac);text-decoration:none}
+.note{font-size:12px;color:var(--tm);margin-top:10px}
 .header{background:var(--s1);border-bottom:1px solid var(--bd);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
 .header h1{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:22px;color:var(--ac)}
 .header-sub{font-size:12px;color:var(--tm);margin-top:2px}
@@ -102,29 +103,32 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
 </head>
 <body>
 
-<!-- SCHERMATA API KEY -->
 <div class="apiscreen" id="apiScreen">
   <div class="apibox">
-    <h2>🔑 Inserisci API Key</h2>
-    <p>Per usare questa app hai bisogno della tua API key di Anthropic.<br>
-    Viene salvata solo nel tuo browser — nessuno la vede.<br>
-    La trovi su <strong>console.anthropic.com</strong></p>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
-    <button onclick="salvaApiKey()">Accedi</button>
-    <div class="note">La chiave viene salvata nel browser locale.<br>Non viene mai inviata su GitHub o altri server.</div>
+    <h2>Archivio Prezzi Cantiere</h2>
+    <p>Usa Gemini di Google — completamente <strong style="color:var(--gr)">GRATIS!</strong><br>
+    La chiave viene salvata solo nel tuo browser.</p>
+    <div class="steps">
+      <strong>Come ottenere la chiave gratuita:</strong><br>
+      1. Vai su aistudio.google.com<br>
+      2. Clicca Get API key<br>
+      3. Clicca Create API key<br>
+      4. Copia la chiave (inizia con AIza...)
+    </div>
+    <input type="password" id="apiKeyInput" placeholder="AIzaSy...">
+    <button onclick="salvaApiKey()">Accedi GRATIS</button>
+    <div class="note">La chiave viene salvata solo nel browser locale.</div>
   </div>
 </div>
 
-<!-- APP PRINCIPALE -->
 <div id="appMain" style="display:none">
-
 <div class="header">
   <div>
     <h1>Archivio Prezzi Cantiere</h1>
-    <div class="header-sub">Carica fatture e contabilita PDF — cerca i prezzi che hai pagato</div>
+    <div class="header-sub">Carica fatture PDF — cerca i prezzi che hai pagato</div>
   </div>
   <div class="header-right">
-    <span class="api-badge">API Key attiva</span>
+    <span class="api-badge">Gemini AI Gratis</span>
     <button class="btn-sm" onclick="cambiaApiKey()">Cambia chiave</button>
   </div>
 </div>
@@ -143,278 +147,233 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
       <div class="upload-icon">📄</div>
       <p><strong>Clicca per caricare</strong></p>
       <p>PDF fattura o contabilita</p>
-      <small>Il bot AI estrae tutti i prezzi</small>
+      <small>Gemini AI estrae tutti i prezzi</small>
     </div>
     <input type="file" id="fileInput" accept="application/pdf,image/jpeg,image/png,image/webp" style="display:none" onchange="carica(event)">
     <div class="proc-bar" id="procBar"><div class="spin"></div><span id="procTxt">Analisi...</span></div>
-    <div class="doc-list" id="docList">
-      <div class="no-docs">Nessun documento.<br>Clicca sopra per caricare!</div>
-    </div>
+    <div class="doc-list" id="docList"><div class="no-docs">Nessun documento.<br>Clicca sopra per caricare!</div></div>
   </div>
 
   <div class="right-panel">
     <div class="search-area">
       <div class="search-row">
-        <input type="text" id="searchIn" placeholder="Cerca: calcestruzzo, ferro, intonaco, scavo, massetto..." onkeydown="if(event.key==='Enter')cerca()">
+        <input type="text" id="searchIn" placeholder="Cerca: calcestruzzo, ferro, intonaco, scavo..." onkeydown="if(event.key==='Enter')cerca()">
         <button onclick="cerca()">Cerca</button>
       </div>
       <div class="search-hint">Cerca nei tuoi documenti — trova prezzi, fornitori e date</div>
     </div>
     <div class="results-area" id="resultsArea">
-      <div class="empty">
-        <div class="ico">🔍</div>
-        <p>Carica i tuoi PDF e poi cerca qualsiasi materiale</p>
-        <small>Es: "calcestruzzo" trova tutti i prezzi pagati con fornitore e data</small>
-      </div>
+      <div class="empty"><div class="ico">🔍</div><p>Carica i tuoi PDF e poi cerca qualsiasi materiale</p><small>Es: calcestruzzo trova tutti i prezzi con fornitore e data</small></div>
     </div>
     <div class="chat-panel">
-      <div class="chat-hdr">Chiedi al Bot — Es: "Quanto ho pagato il ferro?" o "Fornitore piu economico per cls?"</div>
+      <div class="chat-hdr">Chiedi al Bot — Es: "Quanto ho pagato il ferro?" o "Fornitore piu economico?"</div>
       <div class="chat-msgs" id="chatMsgs">
-        <div class="cmsg b">Ciao! Carica le tue fatture PDF e poi chiedimi tutto: prezzi pagati, confronti tra fornitori, andamento prezzi nel tempo.</div>
+        <div class="cmsg b">Ciao! Carica le tue fatture PDF e poi chiedimi tutto sui prezzi pagati.</div>
       </div>
       <div class="chat-in">
-        <input type="text" id="chatIn" placeholder="Es: Quanto ho pagato il calcestruzzo a febbraio?" onkeydown="if(event.key==='Enter')invia()">
+        <input type="text" id="chatIn" placeholder="Es: Quanto ho pagato il calcestruzzo?" onkeydown="if(event.key==='Enter')invia()">
         <button onclick="invia()">Invia</button>
       </div>
     </div>
   </div>
 </div>
-
-</div><!-- fine appMain -->
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-var DOCS = [];
-var CH = [];
-var API_KEY = '';
+var DOCS=[], CH=[], API_KEY='';
+var GURL='https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
-function init() {
-  API_KEY = localStorage.getItem('archivio_apikey') || '';
-  if(API_KEY && API_KEY.startsWith('sk-ant')) {
-    document.getElementById('apiScreen').style.display = 'none';
-    document.getElementById('appMain').style.display = 'block';
-    try { var s = localStorage.getItem('archivio_docs'); if(s) DOCS = JSON.parse(s); } catch(e) {}
+function init(){
+  API_KEY=localStorage.getItem('archivio_gemini_key')||'';
+  if(API_KEY&&API_KEY.startsWith('AIza')){
+    document.getElementById('apiScreen').style.display='none';
+    document.getElementById('appMain').style.display='block';
+    try{var s=localStorage.getItem('archivio_docs');if(s)DOCS=JSON.parse(s);}catch(e){}
     aggiorna();
   }
 }
 
-function salvaApiKey() {
-  var k = document.getElementById('apiKeyInput').value.trim();
-  if(!k || !k.startsWith('sk-ant')) { showToast('API key non valida! Deve iniziare con sk-ant'); return; }
-  localStorage.setItem('archivio_apikey', k);
-  API_KEY = k;
-  document.getElementById('apiScreen').style.display = 'none';
-  document.getElementById('appMain').style.display = 'block';
-  try { var s = localStorage.getItem('archivio_docs'); if(s) DOCS = JSON.parse(s); } catch(e) {}
+function salvaApiKey(){
+  var k=document.getElementById('apiKeyInput').value.trim();
+  if(!k||!k.startsWith('AIza')){showToast('Chiave non valida! Deve iniziare con AIza');return;}
+  localStorage.setItem('archivio_gemini_key',k);
+  API_KEY=k;
+  document.getElementById('apiScreen').style.display='none';
+  document.getElementById('appMain').style.display='block';
+  try{var s=localStorage.getItem('archivio_docs');if(s)DOCS=JSON.parse(s);}catch(e){}
   aggiorna();
-  showToast('API Key salvata!');
+  showToast('API Key Gemini salvata!');
 }
 
-function cambiaApiKey() {
-  localStorage.removeItem('archivio_apikey');
-  API_KEY = '';
-  document.getElementById('apiKeyInput').value = '';
-  document.getElementById('apiScreen').style.display = 'flex';
-  document.getElementById('appMain').style.display = 'none';
+function cambiaApiKey(){
+  localStorage.removeItem('archivio_gemini_key');
+  API_KEY='';
+  document.getElementById('apiKeyInput').value='';
+  document.getElementById('apiScreen').style.display='flex';
+  document.getElementById('appMain').style.display='none';
 }
 
-function salva() { try { localStorage.setItem('archivio_docs', JSON.stringify(DOCS)); } catch(e) {} }
+function salva(){try{localStorage.setItem('archivio_docs',JSON.stringify(DOCS));}catch(e){}}
 
-function aggiorna() {
-  var totVoci = 0, fornitori = {}, totEur = 0;
-  for(var i = 0; i < DOCS.length; i++) {
-    var d = DOCS[i];
-    totVoci += (d.voci || []).length;
-    if(d.fornitore) fornitori[d.fornitore] = 1;
-    totEur += (d.totale || 0);
-  }
-  document.getElementById('stDoc').textContent = DOCS.length;
-  document.getElementById('stVoci').textContent = totVoci;
-  document.getElementById('stForn').textContent = Object.keys(fornitori).length;
-  document.getElementById('stTot').textContent = totEur > 0 ? Math.round(totEur).toLocaleString('it-IT') : '0';
+function aggiorna(){
+  var tv=0,fo={},te=0;
+  for(var i=0;i<DOCS.length;i++){var d=DOCS[i];tv+=(d.voci||[]).length;if(d.fornitore)fo[d.fornitore]=1;te+=(d.totale||0);}
+  document.getElementById('stDoc').textContent=DOCS.length;
+  document.getElementById('stVoci').textContent=tv;
+  document.getElementById('stForn').textContent=Object.keys(fo).length;
+  document.getElementById('stTot').textContent=te>0?Math.round(te).toLocaleString('it-IT'):'0';
   renderDocs();
 }
 
-function renderDocs() {
-  var list = document.getElementById('docList');
-  if(!DOCS.length) { list.innerHTML = '<div class="no-docs">Nessun documento.<br>Clicca sopra per caricare!</div>'; return; }
-  var html = '';
-  for(var i = 0; i < DOCS.length; i++) {
-    var d = DOCS[i];
-    html += '<div class="doc-card" onclick="selDoc(' + i + ')">' +
-      '<div class="doc-card-top">' +
-      '<span class="doc-ico">' + (d.tipo === 'pdf' ? '📄' : '🖼') + '</span>' +
-      '<div class="doc-info">' +
-      '<div class="doc-name">' + esc(d.nome) + '</div>' +
-      '<div class="doc-meta">' + (d.fornitore ? '🏢 ' + esc(d.fornitore) : '') + (d.data ? ' · ' + d.data : '') +
-      (d.totale > 0 ? ' · <strong style="color:var(--ac2)">EUR ' + Number(d.totale).toLocaleString('it-IT',{minimumFractionDigits:2}) + '</strong>' : '') + '</div>' +
-      '<span class="doc-vc">' + (d.voci || []).length + ' voci</span>' +
-      '</div>' +
-      '<button class="doc-del" onclick="event.stopPropagation();elimina(' + i + ')">🗑</button>' +
+function renderDocs(){
+  var list=document.getElementById('docList');
+  if(!DOCS.length){list.innerHTML='<div class="no-docs">Nessun documento.<br>Clicca sopra per caricare!</div>';return;}
+  var html='';
+  for(var i=0;i<DOCS.length;i++){
+    var d=DOCS[i];
+    html+='<div class="doc-card" onclick="selDoc('+i+')">'+
+      '<div class="doc-card-top">'+
+      '<span class="doc-ico">'+(d.tipo==='pdf'?'📄':'🖼')+'</span>'+
+      '<div class="doc-info">'+
+      '<div class="doc-name">'+esc(d.nome)+'</div>'+
+      '<div class="doc-meta">'+(d.fornitore?'🏢 '+esc(d.fornitore):'')+
+      (d.data?' · '+d.data:'')+
+      (d.totale>0?' · <strong style="color:var(--ac2)">EUR '+Number(d.totale).toLocaleString('it-IT',{minimumFractionDigits:2})+'</strong>':'')+'</div>'+
+      '<span class="doc-vc">'+(d.voci||[]).length+' voci</span>'+
+      '</div>'+
+      '<button class="doc-del" onclick="event.stopPropagation();elimina('+i+')">🗑</button>'+
       '</div></div>';
   }
-  list.innerHTML = html;
+  list.innerHTML=html;
 }
 
-function selDoc(i) {
-  var d = DOCS[i];
-  if(!d || !(d.voci || []).length) return;
-  var html = '<div class="res-count">Documento: <strong>' + esc(d.nome) + '</strong> — ' + d.voci.length + ' voci</div>';
-  for(var j = 0; j < d.voci.length; j++) {
-    var v = d.voci[j];
-    html += '<div class="res-card"><div class="res-top"><span class="res-desc">' + esc(v.d) + '</span>' +
-      (v.p > 0 ? '<span class="res-price">EUR ' + Number(v.p).toFixed(2) + '</span>' : '') + '</div>' +
-      '<div class="res-meta">' +
-      (v.q ? '<span class="chip">Qt. ' + v.q + ' ' + v.u + '</span>' : '') +
-      (v.i > 0 ? '<span class="chip gr">Tot. EUR ' + Number(v.i).toFixed(2) + '</span>' : '') +
-      '<span class="chip bl">🏢 ' + esc(d.fornitore || 'ND') + '</span>' +
-      (d.data ? '<span class="chip">' + d.data + '</span>' : '') +
+function selDoc(i){
+  var d=DOCS[i];if(!d||(d.voci||[]).length===0)return;
+  var html='<div class="res-count">Documento: <strong>'+esc(d.nome)+'</strong> — '+d.voci.length+' voci</div>';
+  for(var j=0;j<d.voci.length;j++){
+    var v=d.voci[j];
+    html+='<div class="res-card"><div class="res-top"><span class="res-desc">'+esc(v.d)+'</span>'+
+      (v.p>0?'<span class="res-price">EUR '+Number(v.p).toFixed(2)+'</span>':'')+'</div>'+
+      '<div class="res-meta">'+
+      (v.q?'<span class="chip">Qt. '+v.q+' '+v.u+'</span>':'')+
+      (v.i>0?'<span class="chip gr">Tot. EUR '+Number(v.i).toFixed(2)+'</span>':'')+
+      '<span class="chip bl">🏢 '+esc(d.fornitore||'ND')+'</span>'+
+      (d.data?'<span class="chip">'+d.data+'</span>':'')+
       '</div></div>';
   }
-  document.getElementById('resultsArea').innerHTML = html;
+  document.getElementById('resultsArea').innerHTML=html;
 }
 
-function elimina(i) {
-  if(!confirm('Eliminare questo documento?')) return;
-  DOCS.splice(i, 1);
-  salva(); aggiorna();
-  document.getElementById('resultsArea').innerHTML = '<div class="empty"><div class="ico">🔍</div><p>Cerca un materiale nei tuoi documenti</p></div>';
-  showToast('Documento eliminato');
+function elimina(i){
+  if(!confirm('Eliminare?'))return;
+  DOCS.splice(i,1);salva();aggiorna();
+  document.getElementById('resultsArea').innerHTML='<div class="empty"><div class="ico">🔍</div><p>Cerca un materiale</p></div>';
+  showToast('Eliminato');
 }
 
-async function carica(event) {
-  var file = event.target.files[0];
-  if(!file) return;
-  event.target.value = '';
-  var isPDF = file.type === 'application/pdf';
-  var isImg = file.type.startsWith('image/');
-  if(!isPDF && !isImg) { showToast('Solo PDF o immagini!'); return; }
-  var proc = document.getElementById('procBar');
+async function geminiCall(prompt,fileData,mimeType){
+  var parts=[{text:prompt}];
+  if(fileData){parts.unshift({inline_data:{mime_type:mimeType,data:fileData}});}
+  var resp=await fetch(GURL+'?key='+API_KEY,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contents:[{parts:parts}],generationConfig:{temperature:0.1,maxOutputTokens:4000}})
+  });
+  if(!resp.ok){var e=await resp.json();throw new Error('Errore Gemini '+resp.status+': '+(e.error&&e.error.message?e.error.message:JSON.stringify(e)));}
+  var data=await resp.json();
+  return data.candidates[0].content.parts[0].text;
+}
+
+async function carica(event){
+  var file=event.target.files[0];if(!file)return;
+  event.target.value='';
+  var isPDF=file.type==='application/pdf';
+  var isImg=file.type.startsWith('image/');
+  if(!isPDF&&!isImg){showToast('Solo PDF o immagini!');return;}
+  var proc=document.getElementById('procBar');
   proc.classList.add('show');
-  document.getElementById('procTxt').textContent = 'Lettura documento...';
-  try {
-    var b64 = await new Promise(function(res, rej) {
-      var r = new FileReader();
-      r.onload = function(e) { res(e.target.result); };
-      r.onerror = function() { rej(new Error('Errore lettura')); };
+  document.getElementById('procTxt').textContent='Lettura documento...';
+  try{
+    var b64=await new Promise(function(res,rej){
+      var r=new FileReader();
+      r.onload=function(e){res(e.target.result.split(',')[1]);};
+      r.onerror=function(){rej(new Error('Errore lettura'));};
       r.readAsDataURL(file);
     });
-    var b64d = b64.split(',')[1];
-    if(!b64d) throw new Error('File vuoto');
-    document.getElementById('procTxt').textContent = 'AI sta analizzando...';
-    var prompt = 'Analizza questo documento edile italiano. Estrai tutte le voci con prezzi. Rispondi SOLO con JSON valido:\n{"fornitore":"nome","data":"data","numero":"num","totale":0,"tipo_doc":"fattura","voci":[{"d":"descrizione","u":"um","q":0,"p":0,"i":0}],"note":""}';
-    var cb = isPDF ?
-      {type:'document',source:{type:'base64',media_type:'application/pdf',data:b64d}} :
-      {type:'image',source:{type:'base64',media_type:file.type,data:b64d}};
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'anthropic-dangerous-direct-browser-access': 'true',
-        'x-api-key': API_KEY
-      },
-      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,messages:[{role:'user',content:[cb,{type:'text',text:prompt}]}]})
-    });
-    if(!resp.ok) {
-      var errData = await resp.json();
-      throw new Error('Errore API ' + resp.status + ': ' + (errData.error && errData.error.message ? errData.error.message : ''));
-    }
-    var data = await resp.json();
-    if(!data.content || !data.content[0]) throw new Error('Risposta vuota');
-    var raw = data.content[0].text.trim().replace(/```json|```/g,'').trim();
-    var ex = JSON.parse(raw);
-    var doc = {id:Date.now(),nome:file.name,tipo:isPDF?'pdf':'img',fornitore:ex.fornitore||'ND',data:ex.data||'',numero:ex.numero||'',totale:ex.totale||0,tipo_doc:ex.tipo_doc||'documento',voci:ex.voci||[],note:ex.note||''};
-    DOCS.push(doc);
-    salva(); aggiorna();
-    showToast('Analizzato — ' + doc.voci.length + ' voci estratte!');
-  } catch(err) {
-    console.error(err);
-    showToast('Errore: ' + err.message);
-  }
+    document.getElementById('procTxt').textContent='Gemini AI analizza...';
+    var prompt='Analizza questo documento edile italiano. Estrai tutte le voci con prezzi. Rispondi SOLO con JSON valido senza testo aggiuntivo e senza backtick:\n{"fornitore":"nome","data":"data","numero":"num","totale":0,"tipo_doc":"fattura","voci":[{"d":"descrizione","u":"um","q":0,"p":0,"i":0}],"note":""}';
+    var testo=await geminiCall(prompt,b64,file.type);
+    var raw=testo.trim().replace(/```json|```/g,'').trim();
+    var ex=JSON.parse(raw);
+    var doc={id:Date.now(),nome:file.name,tipo:isPDF?'pdf':'img',fornitore:ex.fornitore||'ND',data:ex.data||'',numero:ex.numero||'',totale:ex.totale||0,tipo_doc:ex.tipo_doc||'documento',voci:ex.voci||[],note:ex.note||''};
+    DOCS.push(doc);salva();aggiorna();
+    showToast('Analizzato — '+doc.voci.length+' voci!');
+  }catch(err){console.error(err);showToast('Errore: '+err.message);}
   proc.classList.remove('show');
 }
 
-function cerca() {
-  var q = document.getElementById('searchIn').value.trim().toLowerCase();
-  if(q.length < 2) { showToast('Almeno 2 caratteri'); return; }
-  if(!DOCS.length) { showToast('Carica prima i documenti PDF!'); return; }
-  var parole = q.split(' ').filter(function(p){ return p.length > 0; });
-  var res = [];
-  for(var i = 0; i < DOCS.length; i++) {
-    var d = DOCS[i];
-    for(var j = 0; j < (d.voci||[]).length; j++) {
-      var v = d.voci[j];
-      var testo = v.d.toLowerCase();
-      var ok = true;
-      for(var p = 0; p < parole.length; p++) {
-        if(testo.indexOf(parole[p]) < 0) { ok = false; break; }
-      }
-      if(ok) res.push({desc:v.d,um:v.u,q:v.q,p:v.p,i:v.i,fornitore:d.fornitore,data:d.data,tipo_doc:d.tipo_doc});
+function cerca(){
+  var q=document.getElementById('searchIn').value.trim().toLowerCase();
+  if(q.length<2){showToast('Almeno 2 caratteri');return;}
+  if(!DOCS.length){showToast('Carica prima i documenti!');return;}
+  var parole=q.split(' ').filter(function(p){return p.length>0;});
+  var res=[];
+  for(var i=0;i<DOCS.length;i++){
+    var d=DOCS[i];
+    for(var j=0;j<(d.voci||[]).length;j++){
+      var v=d.voci[j];
+      var testo=v.d.toLowerCase();
+      var ok=true;
+      for(var p=0;p<parole.length;p++){if(testo.indexOf(parole[p])<0){ok=false;break;}}
+      if(ok)res.push({desc:v.d,um:v.u,q:v.q,p:v.p,i:v.i,fornitore:d.fornitore,data:d.data,tipo_doc:d.tipo_doc});
     }
   }
-  var area = document.getElementById('resultsArea');
-  if(!res.length) {
-    area.innerHTML = '<div class="empty"><div class="ico">❌</div><p>Nessun risultato per <strong>' + esc(q) + '</strong></p><small>Prova con termini diversi o carica piu documenti</small></div>';
-    return;
-  }
-  var html = '<div class="res-count">Trovati <strong>' + res.length + '</strong> risultati per "' + esc(q) + '"</div>';
-  for(var i = 0; i < res.length; i++) {
-    var v = res[i];
-    html += '<div class="res-card"><div class="res-top"><span class="res-desc">' + esc(v.desc) + '</span>' +
-      (v.p > 0 ? '<span class="res-price">EUR ' + Number(v.p).toFixed(2) + ' / ' + v.um + '</span>' : '') + '</div>' +
-      '<div class="res-meta">' +
-      (v.q ? '<span class="chip">Qt. ' + v.q + ' ' + v.u + '</span>' : '') +
-      (v.i > 0 ? '<span class="chip gr">Tot. EUR ' + Number(v.i).toFixed(2) + '</span>' : '') +
-      '<span class="chip bl">🏢 ' + esc(v.fornitore) + '</span>' +
-      (v.data ? '<span class="chip">' + v.data + '</span>' : '') +
+  var area=document.getElementById('resultsArea');
+  if(!res.length){area.innerHTML='<div class="empty"><div class="ico">❌</div><p>Nessun risultato per <strong>'+esc(q)+'</strong></p></div>';return;}
+  var html='<div class="res-count">Trovati <strong>'+res.length+'</strong> risultati per "'+esc(q)+'"</div>';
+  for(var i=0;i<res.length;i++){
+    var v=res[i];
+    html+='<div class="res-card"><div class="res-top"><span class="res-desc">'+esc(v.desc)+'</span>'+
+      (v.p>0?'<span class="res-price">EUR '+Number(v.p).toFixed(2)+' / '+v.um+'</span>':'')+'</div>'+
+      '<div class="res-meta">'+
+      (v.q?'<span class="chip">Qt. '+v.q+' '+v.um+'</span>':'')+
+      (v.i>0?'<span class="chip gr">Tot. EUR '+Number(v.i).toFixed(2)+'</span>':'')+
+      '<span class="chip bl">🏢 '+esc(v.fornitore)+'</span>'+
+      (v.data?'<span class="chip">'+v.data+'</span>':'')+
       '</div></div>';
   }
-  area.innerHTML = html;
+  area.innerHTML=html;
 }
 
-async function invia() {
-  var inp = document.getElementById('chatIn');
-  var txt = inp.value.trim();
-  if(!txt) return;
-  inp.value = '';
-  var msgs = document.getElementById('chatMsgs');
-  msgs.innerHTML += '<div class="cmsg u">' + esc(txt) + '</div>';
-  var typ = document.createElement('div');
-  typ.className = 'typing-ind';
-  typ.innerHTML = '<span>Bot sta scrivendo</span><div class="dots"><span></span><span></span><span></span></div>';
-  msgs.appendChild(typ);
-  msgs.scrollTop = msgs.scrollHeight;
-  CH.push({role:'user',content:txt});
-  var ctx = 'DOCUMENTI CARICATI:\n';
-  for(var i = 0; i < DOCS.length; i++) {
-    var d = DOCS[i];
-    ctx += 'Doc: ' + d.nome + ' | Fornitore: ' + d.fornitore + ' | Data: ' + d.data + ' | Tot: EUR ' + d.totale + '\n';
-    for(var j = 0; j < (d.voci||[]).length; j++) {
-      var v = d.voci[j];
-      ctx += ' - ' + v.d + ': ' + v.q + ' ' + v.u + ' x EUR ' + v.p + ' = EUR ' + v.i + '\n';
-    }
-    ctx += '---\n';
+async function invia(){
+  var inp=document.getElementById('chatIn');
+  var txt=inp.value.trim();if(!txt)return;
+  inp.value='';
+  var msgs=document.getElementById('chatMsgs');
+  msgs.innerHTML+='<div class="cmsg u">'+esc(txt)+'</div>';
+  var typ=document.createElement('div');
+  typ.className='typing-ind';
+  typ.innerHTML='<span>Gemini sta scrivendo</span><div class="dots"><span></span><span></span><span></span></div>';
+  msgs.appendChild(typ);msgs.scrollTop=msgs.scrollHeight;
+  var ctx='DOCUMENTI:\n';
+  for(var i=0;i<DOCS.length;i++){
+    var d=DOCS[i];
+    ctx+='Doc: '+d.nome+' | Fornitore: '+d.fornitore+' | Data: '+d.data+' | Tot: EUR '+d.totale+'\n';
+    for(var j=0;j<(d.voci||[]).length;j++){var v=d.voci[j];ctx+=' - '+v.d+': '+v.q+' '+v.u+' x EUR '+v.p+' = EUR '+v.i+'\n';}
+    ctx+='---\n';
   }
-  var sys = 'Sei un assistente per contabilita cantiere edile. Analizza i documenti e rispondi sui prezzi pagati. Cita sempre fornitore e data.\n\n' + ctx;
-  try {
-    var r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true','x-api-key':API_KEY},
-      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:CH.map(function(m){return{role:m.role,content:m.content};})})
-    });
-    var data = await r.json();
-    var ans = data.content[0].text;
-    CH.push({role:'assistant',content:ans});
-    typ.outerHTML = '<div class="cmsg b">' + ans.replace(/\n/g,'<br>') + '</div>';
-  } catch(e) {
-    typ.outerHTML = '<div class="cmsg b">Errore connessione. Riprova!</div>';
-  }
-  msgs.scrollTop = msgs.scrollHeight;
+  var prompt='Sei un assistente per contabilita cantiere edile italiano. Cita sempre fornitore e data.\n\n'+ctx+'\nDomanda: '+txt;
+  try{
+    var ans=await geminiCall(prompt,null,null);
+    typ.outerHTML='<div class="cmsg b">'+ans.replace(/\n/g,'<br>')+'</div>';
+  }catch(e){typ.outerHTML='<div class="cmsg b">Errore: '+e.message+'</div>';}
+  msgs.scrollTop=msgs.scrollHeight;
 }
 
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function showToast(m) { var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on');},2500); }
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on');},2500);}
 
 init();
 </script>
