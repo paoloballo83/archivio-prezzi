@@ -35,7 +35,6 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
 .cat-tabs{display:flex;border-bottom:1px solid var(--bd)}
 .cat-tab{flex:1;padding:12px 8px;text-align:center;cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:13px;color:var(--tm);border-bottom:2px solid transparent;transition:all .15s}
 .cat-tab.on{color:var(--ac);border-bottom-color:var(--ac);background:rgba(232,160,32,.05)}
-.cat-tab.mat{color:var(--bl)}
 .cat-tab.mat.on{color:var(--bl);border-bottom-color:var(--bl);background:rgba(52,152,219,.05)}
 .cat-panel{flex:1;display:none;flex-direction:column;overflow:hidden}
 .cat-panel.on{display:flex}
@@ -72,7 +71,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
 .search-tabs{display:flex;gap:6px;margin-bottom:10px}
 .search-tab{background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tm);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:13px;padding:6px 14px;cursor:pointer}
 .search-tab.on{background:var(--ac);color:#000;border-color:var(--ac)}
-.search-tab.mat.on{background:var(--bl);border-color:var(--bl)}
+.search-tab.mat.on{background:var(--bl);border-color:var(--bl);color:#fff}
 .search-row{display:flex;gap:8px}
 .search-row input{flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-family:Barlow,sans-serif;font-size:14px;padding:10px 14px;outline:none}
 .search-row input:focus{border-color:var(--ac)}
@@ -149,8 +148,8 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
 
 <div class="stats-bar">
   <div class="stat"><div class="stat-val" id="stTot">0</div><div class="stat-lbl">Documenti</div></div>
-  <div class="stat"><div class="stat-val" id="stMat">0</div><div class="stat-lbl">Materiali</div></div>
   <div class="stat"><div class="stat-val" id="stLav">0</div><div class="stat-lbl">Lavorazioni</div></div>
+  <div class="stat"><div class="stat-val" id="stMat">0</div><div class="stat-lbl">Materiali</div></div>
   <div class="stat"><div class="stat-val" id="stForn">0</div><div class="stat-lbl">Fornitori</div></div>
   <div class="stat"><div class="stat-val" id="stEur">0</div><div class="stat-lbl">Totale EUR</div></div>
 </div>
@@ -161,8 +160,6 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
       <div class="cat-tab on" id="tabLav" onclick="switchCat('lav')">👷 Lavorazioni</div>
       <div class="cat-tab mat" id="tabMat" onclick="switchCat('mat')">🧱 Materiali</div>
     </div>
-
-    <!-- PANEL LAVORAZIONI -->
     <div class="cat-panel on" id="panelLav">
       <div class="upload-area" onclick="document.getElementById('fileLav').click()">
         <div class="upload-icon">👷</div>
@@ -174,8 +171,6 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
       <div class="proc-bar" id="procLav"><div class="spin"></div><span id="procLavTxt">Analisi...</span></div>
       <div class="doc-list" id="listLav"><div class="no-docs">Nessuna lavorazione.<br>Clicca sopra per caricare!</div></div>
     </div>
-
-    <!-- PANEL MATERIALI -->
     <div class="cat-panel" id="panelMat">
       <div class="upload-area mat" onclick="document.getElementById('fileMat').click()">
         <div class="upload-icon">🧱</div>
@@ -193,21 +188,19 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
     <div class="search-area">
       <div class="search-tabs">
         <div class="search-tab on" id="stTutti" onclick="setSTab('tutti')">🔍 Tutti</div>
-        <div class="search-tab" id="stLav" onclick="setSTab('lav')">👷 Lavorazioni</div>
-        <div class="search-tab mat" id="stMat" onclick="setSTab('mat')">🧱 Materiali</div>
+        <div class="search-tab" id="stLav2" onclick="setSTab('lav')">👷 Lavorazioni</div>
+        <div class="search-tab mat" id="stMat2" onclick="setSTab('mat')">🧱 Materiali</div>
       </div>
       <div class="search-row">
-        <input type="text" id="searchIn" placeholder="Cerca: calcestruzzo, ferro, intonaco, muratura, manodopera..." onkeydown="if(event.key==='Enter')cerca()">
+        <input type="text" id="searchIn" placeholder="Cerca: calcestruzzo, cls, ferro, intonaco, muratura..." onkeydown="if(event.key==='Enter')cerca()">
         <button onclick="cerca()">Cerca</button>
       </div>
     </div>
-
     <div class="results-area" id="resultsArea">
-      <div class="empty"><div class="ico">🔍</div><p>Carica i tuoi PDF e poi cerca qualsiasi voce</p><small>Cerca in lavorazioni, materiali o entrambi</small></div>
+      <div class="empty"><div class="ico">🔍</div><p>Carica i tuoi PDF e poi cerca qualsiasi voce</p><small>Cerca in lavorazioni, materiali o entrambi — calcestruzzo trova anche cls!</small></div>
     </div>
-
     <div class="chat-panel">
-      <div class="chat-hdr">💬 Chiedi al Bot — Es: "Quanto ho pagato il ferro?" o "Costo medio manodopera muratore?"</div>
+      <div class="chat-hdr">Chiedi al Bot — Es: "Quanto ho pagato il ferro?" o "Costo medio manodopera?"</div>
       <div class="chat-msgs" id="chatMsgs">
         <div class="cmsg b">Ciao! Carica le tue fatture PDF nelle sezioni Lavorazioni e Materiali, poi chiedimi tutto sui prezzi pagati.</div>
       </div>
@@ -225,6 +218,56 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
 <script>
 var LAVS=[], MATS=[], CH=[], API_KEY='', STAB='tutti';
 
+// DIZIONARIO SINONIMI EDILI
+var SIN={
+  'calcestruzzo':['cls','c.l.s.','cemento armato','ca','c.a.','calcestruzo','conglomerato'],
+  'cls':['calcestruzzo','c.l.s.','cemento armato','conglomerato cementizio'],
+  'cemento':['cls','calcestruzzo','legante','portland'],
+  'ferro':['acciaio','tondino','tondini','barre','ferri','b450c','feb44','armatura','armature'],
+  'acciaio':['ferro','tondino','tondini','barre','ferri','b450c','carpenteria metallica'],
+  'intonaco':['intonaci','rasatura','sbruffatura','arriccio','rinzaffo','stabilitura'],
+  'muratura':['murature','muri','parete','pareti','tamponamento','mattoni','blocchi'],
+  'mattone':['mattoni','laterizio','foratelle','forati','blocco','blocchi','mattone forato'],
+  'laterizio':['mattone','mattoni','blocco','blocchi','foratelle','forati','laterizi'],
+  'solaio':['solai','laterocemento','latero cemento','travetti','pignatte'],
+  'cappotto':['isolamento','coibentazione','termoisolante','isolante','eps','lana di roccia'],
+  'impermeabilizzazione':['guaina','guaine','bitume','membrana bituminosa','impermeabile'],
+  'piastrelle':['ceramica','gres','gres porcellanato','pavimento','rivestimento','maioliche'],
+  'scavo':['scavi','sbancamento','sterro','sterri','movimento terra'],
+  'rinterro':['rinterri','riempimento','reinterro'],
+  'demolizione':['demolizioni','abbattimento','rimozione','smontaggio'],
+  'ponteggio':['ponteggi','trabattello','impalcatura','punteggio'],
+  'manodopera':['mdo','m.d.o.','operaio','operai','muratore','muratori','mano d opera'],
+  'fondazione':['fondazioni','platea','travi di fondazione','trave fondazione'],
+  'solaio':['solai','latero','laterocemento','solaio misto'],
+  'tinteggiatura':['pittura','verniciatura','imbiancatura','tinteggio','colore'],
+  'massetto':['massetti','sottofondo','piano di posa'],
+  'vespaio':['vespaio aerato','igloo','vespai'],
+  'grondaia':['grondaie','pluviale','pluviali','canale di gronda'],
+  'infisso':['infissi','finestre','finestra','porta','porte','serramenti','serramento'],
+  'isolamento':['cappotto','coibentazione','termoisolante','isolante','lana di roccia'],
+  'cartongesso':['lastra','lastre','gesso','controsoffitto','pareti in cartongesso'],
+  'impermeabilizzazione':['guaina','membrana','bitume','impermeabile'],
+  'calce':['grassello','calce idrata','calce idraulica','calce spenta'],
+  'sabbia':['inerte','inerti','sabbia fine','sabbia grossa'],
+  'ghiaia':['ghiaino','pietrisco','brecciolino','stabilizzato'],
+  'nolo':['noleggio','affitto','locazione macchine'],
+  'ponteggio':['ponteggi','trabattello','punteggio']
+};
+
+function espandiQuery(q){
+  var paroleBase=q.toLowerCase().split(' ').filter(function(p){return p.length>1;});
+  return paroleBase.map(function(p){
+    var gruppo=[p];
+    if(SIN[p]){SIN[p].forEach(function(s){gruppo.push(s.toLowerCase());});}
+    // Cerca anche se la parola base e sinonimo di qualcosa
+    Object.keys(SIN).forEach(function(k){
+      if(SIN[k].indexOf(p)>=0&&gruppo.indexOf(k)<0){gruppo.push(k);}
+    });
+    return gruppo;
+  });
+}
+
 function init(){
   API_KEY=localStorage.getItem('archivio_ant_key')||'';
   if(API_KEY&&API_KEY.startsWith('sk-ant')){
@@ -239,8 +282,7 @@ function init(){
 function salvaApiKey(){
   var k=document.getElementById('apiKeyInput').value.trim();
   if(!k||!k.startsWith('sk-ant')){showToast('Chiave non valida!');return;}
-  localStorage.setItem('archivio_ant_key',k);
-  API_KEY=k;
+  localStorage.setItem('archivio_ant_key',k);API_KEY=k;
   document.getElementById('apiScreen').style.display='none';
   document.getElementById('appMain').style.display='block';
   try{var s=localStorage.getItem('arch_lav');if(s)LAVS=JSON.parse(s);}catch(e){}
@@ -264,8 +306,12 @@ function switchCat(cat){
 
 function setSTab(t){
   STAB=t;
-  ['Tutti','Lav','Mat'].forEach(function(x){document.getElementById('st'+x).classList.remove('on');});
-  document.getElementById('st'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('on');
+  document.getElementById('stTutti').classList.remove('on');
+  document.getElementById('stLav2').classList.remove('on');
+  document.getElementById('stMat2').classList.remove('on');
+  if(t==='tutti')document.getElementById('stTutti').classList.add('on');
+  if(t==='lav')document.getElementById('stLav2').classList.add('on');
+  if(t==='mat')document.getElementById('stMat2').classList.add('on');
   var q=document.getElementById('searchIn').value.trim();
   if(q.length>1)cerca();
 }
@@ -274,9 +320,9 @@ function salvaL(){try{localStorage.setItem('arch_lav',JSON.stringify(LAVS));}cat
 function salvaM(){try{localStorage.setItem('arch_mat',JSON.stringify(MATS));}catch(e){}}
 
 function aggiorna(){
-  var totV=0,forn={},totE=0;
-  LAVS.forEach(function(d){totV+=(d.voci||[]).length;if(d.fornitore)forn[d.fornitore]=1;totE+=(d.totale||0);});
-  MATS.forEach(function(d){totV+=(d.voci||[]).length;if(d.fornitore)forn[d.fornitore]=1;totE+=(d.totale||0);});
+  var forn={},totE=0;
+  LAVS.forEach(function(d){if(d.fornitore)forn[d.fornitore]=1;totE+=(d.totale||0);});
+  MATS.forEach(function(d){if(d.fornitore)forn[d.fornitore]=1;totE+=(d.totale||0);});
   document.getElementById('stTot').textContent=LAVS.length+MATS.length;
   document.getElementById('stLav').textContent=LAVS.length;
   document.getElementById('stMat').textContent=MATS.length;
@@ -288,9 +334,7 @@ function aggiorna(){
 function renderList(tipo){
   var docs=tipo==='lav'?LAVS:MATS;
   var list=document.getElementById('list'+(tipo==='lav'?'Lav':'Mat'));
-  if(!docs.length){
-    list.innerHTML='<div class="no-docs">Nessun documento.<br>Clicca sopra per caricare!</div>';return;
-  }
+  if(!docs.length){list.innerHTML='<div class="no-docs">Nessun documento.<br>Clicca sopra per caricare!</div>';return;}
   var html='';
   for(var i=0;i<docs.length;i++){
     var d=docs[i];
@@ -313,15 +357,15 @@ function selDoc(tipo,i){
   var html='<div class="res-count">'+(tipo==='lav'?'👷':'🧱')+' <strong>'+esc(d.nome)+'</strong> — '+d.voci.length+' voci</div>';
   for(var j=0;j<d.voci.length;j++){
     var v=d.voci[j];
+    var prezzo=v.pn>0?v.pn:(v.p>0?v.p:0);
     html+='<div class="res-card"><div class="res-top"><span class="res-desc">'+esc(v.d)+'</span>'+
-      (v.pn>0?'<span class="res-price">EUR '+Number(v.pn).toFixed(2)+'</span>':
-       v.p>0?'<span class="res-price">EUR '+Number(v.p).toFixed(2)+'</span>':'')+'</div>'+
+      (prezzo>0?'<span class="res-price">EUR '+Number(prezzo).toFixed(2)+'</span>':'')+'</div>'+
       '<div class="res-meta">'+(v.q?'<span class="chip">Qt. '+v.q+' '+v.u+'</span>':'')+
       (v.s>0?'<span class="chip rd">Sc. '+v.s+'%</span>':'')+
       (v.i>0?'<span class="chip gr">Tot. EUR '+Number(v.i).toFixed(2)+'</span>':'')+
       '<span class="chip bl">🏢 '+esc(d.fornitore||'ND')+'</span>'+
       (d.data?'<span class="chip">'+d.data+'</span>':'')+
-      '<span class="chip '+(tipo==='lav'?'or':'bl')+'">'+(tipo==='lav'?'👷 Lavorazione':'🧱 Materiale')+'</span>'+
+      '<span class="chip '+(tipo==='lav'?'or':'bl')+'">'+(tipo==='lav'?'👷 Lav':'🧱 Mat')+'</span>'+
       '</div></div>';
   }
   document.getElementById('resultsArea').innerHTML=html;
@@ -329,8 +373,7 @@ function selDoc(tipo,i){
 
 function elimina(tipo,i){
   if(!confirm('Eliminare?'))return;
-  if(tipo==='lav'){LAVS.splice(i,1);salvaL();}
-  else{MATS.splice(i,1);salvaM();}
+  if(tipo==='lav'){LAVS.splice(i,1);salvaL();}else{MATS.splice(i,1);salvaM();}
   aggiorna();
   document.getElementById('resultsArea').innerHTML='<div class="empty"><div class="ico">🔍</div><p>Cerca un materiale o lavorazione</p></div>';
   showToast('Eliminato');
@@ -366,7 +409,7 @@ async function carica(tipo,event){
     });
     document.getElementById(procTxtId).textContent='Claude AI analizza...';
     var tipoLabel=tipo==='lav'?'lavorazioni e manodopera':'acquisto materiali edili';
-    var prompt='Analizza questa fattura italiana di '+tipoLabel+'. Estrai tutte le voci con prezzi. Tieni conto degli sconti — usa il prezzo netto dopo sconto. Rispondi SOLO con JSON valido senza testo aggiuntivo e senza backtick:\n{"fornitore":"nome","data":"data","numero":"num","totale":0,"tipo_doc":"fattura","voci":[{"d":"descrizione","u":"um","q":0,"p":0,"s":0,"pn":0,"i":0}],"note":""}\nDove p=prezzo lordo, s=sconto%, pn=prezzo netto, i=importo totale netto.';
+    var prompt='Analizza questa fattura italiana di '+tipoLabel+'. Estrai tutte le voci con prezzi. Tieni conto degli sconti. Rispondi SOLO con JSON valido senza testo aggiuntivo e senza backtick:\n{"fornitore":"nome","data":"data","numero":"num","totale":0,"tipo_doc":"fattura","voci":[{"d":"descrizione","u":"um","q":0,"p":0,"s":0,"pn":0,"i":0}],"note":""}\nDove p=prezzo lordo, s=sconto%, pn=prezzo netto, i=importo totale netto.';
     var content=[
       isPDF?{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}}:
             {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
@@ -377,10 +420,8 @@ async function carica(tipo,event){
     var ex=JSON.parse(raw);
     var doc={id:Date.now(),nome:file.name,tipo:isPDF?'pdf':'img',
       fornitore:ex.fornitore||'ND',data:ex.data||'',numero:ex.numero||'',
-      totale:ex.totale||0,tipo_doc:ex.tipo_doc||'fattura',
-      voci:ex.voci||[],note:ex.note||''};
-    if(tipo==='lav'){LAVS.push(doc);salvaL();}
-    else{MATS.push(doc);salvaM();}
+      totale:ex.totale||0,tipo_doc:ex.tipo_doc||'fattura',voci:ex.voci||[],note:ex.note||''};
+    if(tipo==='lav'){LAVS.push(doc);salvaL();}else{MATS.push(doc);salvaM();}
     aggiorna();
     showToast('Analizzato — '+doc.voci.length+' voci!');
   }catch(err){console.error(err);showToast('Errore: '+err.message);}
@@ -390,52 +431,33 @@ async function carica(tipo,event){
 function cerca(){
   var q=document.getElementById('searchIn').value.trim().toLowerCase();
   if(q.length<2){showToast('Almeno 2 caratteri');return;}
-  var sinonimi={
-  'calcestruzzo':['cls','c.l.s.','cemento armato','ca','c.a.','calcestruzo'],
-  'cls':['calcestruzzo','cemento armato','c.l.s.'],
-  'ferro':['acciaio','tondino','barre','ferri','b450c','feb44'],
-  'acciaio':['ferro','tondino','barre','ferri','b450c'],
-  'intonaco':['intonaci','rasatura','sbruffatura','arriccio'],
-  'muratura':['murature','muri','parete','pareti','tamponamento'],
-  'solaio':['solai','solaio','latero','laterocemento'],
-  'cappotto':['isolamento','coibentazione','termoisolante'],
-  'impermeabilizzazione':['impermeabile','guaina','bitume'],
-  'piastrelle':['ceramica','gres','pavimento','rivestimento'],
-  'scavo':['scavi','sbancamento','sterro'],
-  'ponteggio':['ponteggi','trabattello'],
-  'manodopera':['mdo','operaio','operai','muratore','muratori'],
-  'laterizio':['mattone','mattoni','blocco','blocchi','foratelle','forati'],
-  'fondazione':['fondazioni','platea','trave','travi di fondazione']
-};
-var paroleBase=q.split(' ').filter(function(p){return p.length>0;});
-var parole=[];
-paroleBase.forEach(function(p){
-  parole.push(p);
-  if(sinonimi[p]){sinonimi[p].forEach(function(s){if(parole.indexOf(s)<0)parole.push(s);});}
-});
-// Cerca con OR tra sinonimi ma AND tra parole diverse
-var parole=paroleBase;
-var espanso=[];
-paroleBase.forEach(function(p){
-  var gruppo=[p];
-  if(sinonimi[p])sinonimi[p].forEach(function(s){gruppo.push(s);});
-  espanso.push(gruppo);
-});
+  var espanso=espandiQuery(q);
   var res=[];
 
   function cercaIn(docs,tipo){
     for(var i=0;i<docs.length;i++){
       var d=docs[i];
       for(var j=0;j<(d.voci||[]).length;j++){
-        var v=d.voci[j];var testo=v.d.toLowerCase();var ok=true;
-        for(var p=0;p<parole.length;p++){if(testo.indexOf(parole[p])<0){ok=false;break;}}
-        if(ok)res.push({desc:v.d,um:v.u,q:v.q,p:v.p,s:v.s,pn:v.pn,i:v.i,fornitore:d.fornitore,data:d.data,tipo:tipo});
+        var v=d.voci[j];
+        var testo=v.d.toLowerCase();
+        var ok=true;
+        for(var g=0;g<espanso.length;g++){
+          var trovato=false;
+          for(var s=0;s<espanso[g].length;s++){
+            if(testo.indexOf(espanso[g][s])>=0){trovato=true;break;}
+          }
+          if(!trovato){ok=false;break;}
+        }
+        if(ok){
+          var prezzo=v.pn>0?v.pn:(v.p>0?v.p:0);
+          res.push({desc:v.d,um:v.u,q:v.q,p:v.p,s:v.s,pn:v.pn,i:v.i,prezzo:prezzo,fornitore:d.fornitore,data:d.data,tipo:tipo});
+        }
       }
     }
   }
 
-  if(STAB==='tutti'||STAB==='lav') cercaIn(LAVS,'lav');
-  if(STAB==='tutti'||STAB==='mat') cercaIn(MATS,'mat');
+  if(STAB==='tutti'||STAB==='lav')cercaIn(LAVS,'lav');
+  if(STAB==='tutti'||STAB==='mat')cercaIn(MATS,'mat');
 
   var area=document.getElementById('resultsArea');
   if(!res.length){
@@ -444,9 +466,8 @@ paroleBase.forEach(function(p){
   var html='<div class="res-count">Trovati <strong>'+res.length+'</strong> risultati per "'+esc(q)+'"</div>';
   for(var i=0;i<res.length;i++){
     var v=res[i];
-    var prezzo=v.pn>0?v.pn:(v.p>0?v.p:0);
     html+='<div class="res-card"><div class="res-top"><span class="res-desc">'+esc(v.desc)+'</span>'+
-      (prezzo>0?'<span class="res-price">EUR '+Number(prezzo).toFixed(2)+(v.um?' / '+v.um:'')+'</span>':'')+'</div>'+
+      (v.prezzo>0?'<span class="res-price">EUR '+Number(v.prezzo).toFixed(2)+(v.um?' / '+v.um:'')+'</span>':'')+'</div>'+
       '<div class="res-meta">'+(v.q?'<span class="chip">Qt. '+v.q+' '+v.um+'</span>':'')+
       (v.s>0?'<span class="chip rd">Sc. '+v.s+'%</span>':'')+
       (v.i>0?'<span class="chip gr">Tot. EUR '+Number(v.i).toFixed(2)+'</span>':'')+
@@ -479,7 +500,7 @@ async function invia(){
     ctx+='---\n';
   });
   CH.push({role:'user',content:txt});
-  var sys='Sei un assistente per contabilita cantiere edile italiano. Hai accesso a fatture di lavorazioni e materiali. Cita sempre fornitore, data e categoria.\n\n'+ctx;
+  var sys='Sei un assistente per contabilita cantiere edile italiano. Cita sempre fornitore, data e categoria.\n\n'+ctx;
   try{
     var resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
