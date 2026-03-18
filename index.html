@@ -106,16 +106,16 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
 <div class="apiscreen" id="apiScreen">
   <div class="apibox">
     <h2>Archivio Prezzi Cantiere</h2>
-    <p>Usa Gemini di Google — completamente <strong style="color:var(--gr)">GRATIS!</strong><br>La chiave viene salvata solo nel tuo browser.</p>
+    <p>Inserisci la tua API key Anthropic.<br>Viene salvata solo nel tuo browser.</p>
     <div class="steps">
-      <strong>Come ottenere la chiave gratuita:</strong><br>
-      1. Vai su aistudio.google.com<br>
-      2. Clicca Get API key<br>
-      3. Clicca Create API key<br>
-      4. Copia la chiave (inizia con AIza...)
+      <strong>Come trovare la API key:</strong><br>
+      1. Vai su console.anthropic.com<br>
+      2. Clicca API Keys nel menu<br>
+      3. Clicca Create Key<br>
+      4. Copia la chiave (inizia con sk-ant...)
     </div>
-    <input type="password" id="apiKeyInput" placeholder="AIzaSy...">
-    <button onclick="salvaApiKey()">Accedi GRATIS</button>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <button onclick="salvaApiKey()">Accedi</button>
     <div class="note">La chiave viene salvata solo nel browser locale.</div>
   </div>
 </div>
@@ -127,7 +127,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
     <div class="header-sub">Carica fatture PDF — cerca i prezzi che hai pagato</div>
   </div>
   <div class="header-right">
-    <span class="api-badge">Gemini AI Gratis</span>
+    <span class="api-badge">Claude AI attivo</span>
     <button class="btn-sm" onclick="cambiaApiKey()">Cambia chiave</button>
   </div>
 </div>
@@ -144,7 +144,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
       <div class="upload-icon">📄</div>
       <p><strong>Clicca per caricare</strong></p>
       <p>PDF fattura o contabilita</p>
-      <small>Gemini AI estrae tutti i prezzi</small>
+      <small>Claude AI estrae tutti i prezzi automaticamente</small>
     </div>
     <input type="file" id="fileInput" accept="application/pdf,image/jpeg,image/png,image/webp" style="display:none" onchange="carica(event)">
     <div class="proc-bar" id="procBar"><div class="spin"></div><span id="procTxt">Analisi...</span></div>
@@ -178,11 +178,10 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--tx);min-heig
 
 <script>
 var DOCS=[], CH=[], API_KEY='';
-var GURL='https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent';
 
 function init(){
-  API_KEY=localStorage.getItem('archivio_gemini_key')||'';
-  if(API_KEY&&API_KEY.startsWith('AIza')){
+  API_KEY=localStorage.getItem('archivio_ant_key')||'';
+  if(API_KEY&&API_KEY.startsWith('sk-ant')){
     document.getElementById('apiScreen').style.display='none';
     document.getElementById('appMain').style.display='block';
     try{var s=localStorage.getItem('archivio_docs');if(s)DOCS=JSON.parse(s);}catch(e){}
@@ -192,18 +191,18 @@ function init(){
 
 function salvaApiKey(){
   var k=document.getElementById('apiKeyInput').value.trim();
-  if(!k||!k.startsWith('AIza')){showToast('Chiave non valida! Deve iniziare con AIza');return;}
-  localStorage.setItem('archivio_gemini_key',k);
+  if(!k||!k.startsWith('sk-ant')){showToast('Chiave non valida! Deve iniziare con sk-ant');return;}
+  localStorage.setItem('archivio_ant_key',k);
   API_KEY=k;
   document.getElementById('apiScreen').style.display='none';
   document.getElementById('appMain').style.display='block';
   try{var s=localStorage.getItem('archivio_docs');if(s)DOCS=JSON.parse(s);}catch(e){}
   aggiorna();
-  showToast('API Key Gemini salvata!');
+  showToast('API Key salvata!');
 }
 
 function cambiaApiKey(){
-  localStorage.removeItem('archivio_gemini_key');
+  localStorage.removeItem('archivio_ant_key');
   API_KEY='';
   document.getElementById('apiKeyInput').value='';
   document.getElementById('apiScreen').style.display='flex';
@@ -262,17 +261,24 @@ function elimina(i){
   showToast('Eliminato');
 }
 
-async function geminiCall(prompt,fileData,mimeType){
-  var parts=[{text:prompt}];
-  if(fileData){parts.unshift({inline_data:{mime_type:mimeType,data:fileData}});}
-  var resp=await fetch(GURL+'?key='+API_KEY,{
+async function antCall(content){
+  var resp=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({contents:[{parts:parts}],generationConfig:{temperature:0.1,maxOutputTokens:4000}})
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':API_KEY,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:3000,
+      messages:[{role:'user',content:content}]
+    })
   });
   if(!resp.ok){var e=await resp.json();throw new Error('Errore '+resp.status+': '+(e.error&&e.error.message?e.error.message:JSON.stringify(e)));}
   var data=await resp.json();
-  return data.candidates[0].content.parts[0].text;
+  return data.content[0].text;
 }
 
 async function carica(event){
@@ -291,9 +297,14 @@ async function carica(event){
       r.onerror=function(){rej(new Error('Errore lettura'));};
       r.readAsDataURL(file);
     });
-    document.getElementById('procTxt').textContent='Gemini AI analizza...';
+    document.getElementById('procTxt').textContent='Claude AI analizza...';
     var prompt='Analizza questo documento edile italiano. Estrai tutte le voci con prezzi. Rispondi SOLO con JSON valido senza testo aggiuntivo e senza backtick:\n{"fornitore":"nome","data":"data","numero":"num","totale":0,"tipo_doc":"fattura","voci":[{"d":"descrizione","u":"um","q":0,"p":0,"i":0}],"note":""}';
-    var testo=await geminiCall(prompt,b64,file.type);
+    var content=[
+      isPDF?{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}}:
+            {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
+      {type:'text',text:prompt}
+    ];
+    var testo=await antCall(content);
     var raw=testo.trim().replace(/```json|```/g,'').trim();
     var ex=JSON.parse(raw);
     var doc={id:Date.now(),nome:file.name,tipo:isPDF?'pdf':'img',fornitore:ex.fornitore||'ND',data:ex.data||'',numero:ex.numero||'',totale:ex.totale||0,tipo_doc:ex.tipo_doc||'documento',voci:ex.voci||[],note:ex.note||''};
@@ -338,7 +349,7 @@ async function invia(){
   var msgs=document.getElementById('chatMsgs');
   msgs.innerHTML+='<div class="cmsg u">'+esc(txt)+'</div>';
   var typ=document.createElement('div');typ.className='typing-ind';
-  typ.innerHTML='<span>Gemini sta scrivendo</span><div class="dots"><span></span><span></span><span></span></div>';
+  typ.innerHTML='<span>Claude sta scrivendo</span><div class="dots"><span></span><span></span><span></span></div>';
   msgs.appendChild(typ);msgs.scrollTop=msgs.scrollHeight;
   var ctx='DOCUMENTI:\n';
   for(var i=0;i<DOCS.length;i++){
@@ -347,9 +358,17 @@ async function invia(){
     for(var j=0;j<(d.voci||[]).length;j++){var v=d.voci[j];ctx+=' - '+v.d+': '+v.q+' '+v.u+' x EUR '+v.p+' = EUR '+v.i+'\n';}
     ctx+='---\n';
   }
-  var prompt='Sei un assistente per contabilita cantiere edile italiano. Cita sempre fornitore e data.\n\n'+ctx+'\nDomanda: '+txt;
+  CH.push({role:'user',content:txt});
+  var sys='Sei un assistente per contabilita cantiere edile italiano. Cita sempre fornitore e data.\n\n'+ctx;
   try{
-    var ans=await geminiCall(prompt,null,null);
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:CH.map(function(m){return{role:m.role,content:m.content};})})
+    });
+    var data=await resp.json();
+    var ans=data.content[0].text;
+    CH.push({role:'assistant',content:ans});
     typ.outerHTML='<div class="cmsg b">'+ans.replace(/\n/g,'<br>')+'</div>';
   }catch(e){typ.outerHTML='<div class="cmsg b">Errore: '+e.message+'</div>';}
   msgs.scrollTop=msgs.scrollHeight;
