@@ -390,7 +390,37 @@ async function carica(tipo,event){
 function cerca(){
   var q=document.getElementById('searchIn').value.trim().toLowerCase();
   if(q.length<2){showToast('Almeno 2 caratteri');return;}
-  var parole=q.split(' ').filter(function(p){return p.length>0;});
+  var sinonimi={
+  'calcestruzzo':['cls','c.l.s.','cemento armato','ca','c.a.','calcestruzo'],
+  'cls':['calcestruzzo','cemento armato','c.l.s.'],
+  'ferro':['acciaio','tondino','barre','ferri','b450c','feb44'],
+  'acciaio':['ferro','tondino','barre','ferri','b450c'],
+  'intonaco':['intonaci','rasatura','sbruffatura','arriccio'],
+  'muratura':['murature','muri','parete','pareti','tamponamento'],
+  'solaio':['solai','solaio','latero','laterocemento'],
+  'cappotto':['isolamento','coibentazione','termoisolante'],
+  'impermeabilizzazione':['impermeabile','guaina','bitume'],
+  'piastrelle':['ceramica','gres','pavimento','rivestimento'],
+  'scavo':['scavi','sbancamento','sterro'],
+  'ponteggio':['ponteggi','trabattello'],
+  'manodopera':['mdo','operaio','operai','muratore','muratori'],
+  'laterizio':['mattone','mattoni','blocco','blocchi','foratelle','forati'],
+  'fondazione':['fondazioni','platea','trave','travi di fondazione']
+};
+var paroleBase=q.split(' ').filter(function(p){return p.length>0;});
+var parole=[];
+paroleBase.forEach(function(p){
+  parole.push(p);
+  if(sinonimi[p]){sinonimi[p].forEach(function(s){if(parole.indexOf(s)<0)parole.push(s);});}
+});
+// Cerca con OR tra sinonimi ma AND tra parole diverse
+var parole=paroleBase;
+var espanso=[];
+paroleBase.forEach(function(p){
+  var gruppo=[p];
+  if(sinonimi[p])sinonimi[p].forEach(function(s){gruppo.push(s);});
+  espanso.push(gruppo);
+});
   var res=[];
 
   function cercaIn(docs,tipo){
