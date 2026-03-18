@@ -298,7 +298,7 @@ async function carica(event){
       r.readAsDataURL(file);
     });
     document.getElementById('procTxt').textContent='Claude AI analizza...';
-    var prompt='Analizza questo documento edile italiano. Estrai tutte le voci con prezzi. Rispondi SOLO con JSON valido senza testo aggiuntivo e senza backtick:\n{"fornitore":"nome","data":"data","numero":"num","totale":0,"tipo_doc":"fattura","voci":[{"d":"descrizione","u":"um","q":0,"p":0,"i":0}],"note":""}';
+    var prompt='Analizza questo documento edile italiano. Estrai tutte le voci con prezzi. Tieni conto di eventuali sconti — il prezzo finale deve essere quello NETTO dopo sconto. Rispondi SOLO con JSON valido senza testo aggiuntivo e senza backtick:\n{"fornitore":"nome","data":"data","numero":"num","totale":0,"tipo_doc":"fattura","voci":[{"d":"descrizione","u":"um","q":0,"p":0,"s":0,"pn":0,"i":0}],"note":""}\nDove p=prezzo lordo, s=percentuale sconto, pn=prezzo netto dopo sconto, i=importo totale netto.';
     var content=[
       isPDF?{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}}:
             {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
